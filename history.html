@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mimdinare - History</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f4f6;
+            padding-top: 4rem; /* Prevent content from being hidden under navbar */
+        }
+
+        .navbar {
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #1e3a8a;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: auto;
+            padding: 1rem;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filters button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background: #1e3a8a;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filters button.active {
+            background: #3b82f6;
+        }
+
+        .filters button:hover {
+            background: #2563eb;
+        }
+
+        .search-bar {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background: #1e3a8a;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #2563eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+        }
+
+        /* Responsive table */
+        @media screen and (max-width: 768px) {
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.4rem;
+            }
+        }
+
+        .calendar-container {
+            margin-bottom: 1rem;
+        }
+
+        .calendar-container input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" onclick="redirectToDashboard()">MIMDINARE</div>
+        <div class="nav-links">
+            <a href="./stock.html">STOCK</a>
+            <a href="./history.html" class="active">HISTORY</a>
+            <a href="./shop.html">SHOP</a>
+        </div>
+        <div class="user-info">
+            <span id="username-display"></span>
+            <button onclick="logout()" class="logout-btn">→</button>
+        </div>
+    </nav>
+
+    <main>
+        <h1>History</h1>
+        <div class="filters">
+            <button onclick="filterHistory('all')" class="active">All</button>
+            <button onclick="filterHistory('shop')">Shop Items</button>
+            <button onclick="filterHistory('game')">Game Sessions</button>
+        </div>
+        <div class="calendar-container">
+            <input type="text" id="calendarInput" placeholder="Select date">
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by date, type, or items..." oninput="searchHistory()">
+            <button onclick="clearSearch()">Clear</button>
+        </div>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Price (₾)</th>
+                    <th>Items Purchased</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- History rows will be populated here -->
+            </tbody>
+        </table>
+        <div id="noDataMessage" class="no-data">No history available.</div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Load history data from localStorage
+        let historyData = JSON.parse(localStorage.getItem('historyData')) || [];
+
+        // Example history data structure
+        // historyData = [
+        //     { timestamp: 1633072800000, type: 'Shop Purchase', price: 25.50, items: [{ name: 'Item A', quantity: 2 }] },
+        //     { timestamp: 1633159200000, type: 'Game Session', duration: '2 hours', price: 15.00 },
+        //     { timestamp: 1633245600000, type: 'End Day', price: 0.00 },
+        //     { timestamp: 1633332000000, type: 'Game Session', duration: '1 hour', price: 10.00 }
+        // ];
+
+        // Display username
+        const username = localStorage.getItem('username');
+        document.getElementById('username-display').textContent = username;
+
+        // Initialize Flatpickr calendar
+        const calendar = flatpickr("#calendarInput", {
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr) {
+                filterByDate(dateStr);
+            }
+        });
+
+        // Function to filter history by selected date
+        function filterByDate(dateStr) {
+            const filter = document.querySelector('.filters button.active').getAttribute('onclick').match(/'([^']+)'/)[1];
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            renderHistoryTable(filter, searchQuery, dateStr);
+        }
+
+        // Function to render history table with filters
+        function renderHistoryTable(filter = 'all', searchQuery = '', dateStr = '') {
+            const tableBody = document.querySelector('#historyTable tbody');
+            const noDataMessage = document.getElementById('noDataMessage');
+
+            // Filter history data
+            const filteredData = historyData.filter(entry => {
+                if (filter === 'shop' && entry.type !== 'Shop Purchase') return false;
+                if (filter === 'game' && (entry.type === 'Shop Purchase' || entry.type === 'End Day')) return false;
+                if (searchQuery) {
+                    const searchLower = searchQuery.toLowerCase();
+                    const matchesDate = new Date(entry.timestamp).toLocaleString().toLowerCase().includes(searchLower);
+                    const matchesType = entry.type.toLowerCase().includes(searchLower);
+                    const matchesItems = entry.items ? entry.items.some(item => item.name.toLowerCase().includes(searchLower)) : false;
+                    if (!matchesDate && !matchesType && !matchesItems) return false;
+                }
+                if (dateStr) {
+                    const entryDate = new Date(entry.timestamp).toISOString().split('T')[0];
+                    if (entryDate !== dateStr) return false;
+                }
+                return true;
+            });
+
+            if (filteredData.length === 0) {
+                noDataMessage.style.display = 'block';
+                tableBody.innerHTML = '';
+                return;
+            }
+
+            noDataMessage.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            filteredData.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                    <td>${entry.type}</td>
+                    <td>${entry.duration || 'N/A'}</td>
+                    <td>${entry.price ? entry.price.toFixed(2) : 'N/A'}</td>
+                    <td>${entry.items ? entry.items.map(item => `${item.name} (${item.quantity}x)`).join(', ') : 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to filter history
+        function filterHistory(filter) {
+            // Update active filter button
+            document.querySelectorAll('.filters button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`.filters button[onclick="filterHistory('${filter}')"]`).classList.add('active');
+
+            // Render the table with the selected filter
+            const dateStr = document.getElementById('calendarInput').value;
+            renderHistoryTable(filter, document.getElementById('searchInput').value, dateStr);
+        }
+
+        // Function to search history
+        function searchHistory() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const dateStr = document.getElementById('calendarInput').value;
+            renderHistoryTable(document.querySelector('.filters button.active').getAttribute('onclick').match(/'([^']+)'/)[1], searchQuery, dateStr);
+        }
+
+        // Function to clear search
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const dateStr = document.getElementById('calendarInput').value;
+            renderHistoryTable(document.querySelector('.filters button.active').getAttribute('onclick').match(/'([^']+)'/)[1], '', dateStr);
+        }
+
+        // Render the table on page load
+        renderHistoryTable();
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            window.location.href = 'index.html';
+        }
+
+        // Redirect to dashboard
+        function redirectToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
